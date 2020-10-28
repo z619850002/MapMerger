@@ -62,8 +62,16 @@ public:
 		this->m_gKeyFrames.push_back(pKeyFrame);
 	}
 
-	void AddMapPoints(MapPoint * pMapPoint){
-		this->m_gMapPoints.push_back(pMapPoint);
+	void AddRealPoints(RealPoint * pRealPoint){
+		this->m_gRealPoints.push_back(pRealPoint);
+	}
+
+	vector<KeyFrame *> GetKeyFrames(){
+		return this->m_gKeyFrames;
+	}
+
+	vector<RealPoint *> GetRealPoints(){
+		return this->m_gRealPoints;
 	}
 
 public:
@@ -196,9 +204,9 @@ public:
 	    glPointSize(mPointSize);
 	    glBegin(GL_POINTS);
 	    glColor3f(0.0,1.0,0.0);
-	    for(size_t i=0, iend=m_gMapPoints.size(); i<iend;i++)
+	    for(size_t i=0, iend=m_gRealPoints.size(); i<iend;i++)
 	    {
-	        cv::Point3d iPosition = this->m_gMapPoints[i]->GetPosition();
+	        cv::Point3d iPosition = this->m_gRealPoints[i]->GetPosition();
 	        glVertex3f(iPosition.x,iPosition.y,iPosition.z);
 	    }
 
@@ -217,7 +225,7 @@ public:
     vector<KeyFrame *> m_gKeyFrames;
 
 
-    vector<MapPoint *> m_gMapPoints;
+    vector<RealPoint *> m_gRealPoints;
 
 
     //Drawer setttings.

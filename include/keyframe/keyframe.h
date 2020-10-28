@@ -25,7 +25,7 @@
 using namespace std;
 
 class MapPoint;
-
+class Camera;
 
 class KeyFrame
 {
@@ -48,6 +48,11 @@ public:
 
 	Camera * GetCamera();
 
+	void SetPreviousKeyFrame(KeyFrame * pKeyFrame);
+
+	KeyFrame * GetPreviousKeyFrame();
+
+
 	bool HasBeenObserved(MapPoint * pMapPoint);
 
 	void AddCovisibleEdge(KeyFrame * pKeyFrame, int nCovisiblePoints);
@@ -58,8 +63,12 @@ public:
 
 	int GetId();
 
+	vector<cv::Point3d> SamplePoint(double nWidth, double nHeight, double nMinDepth, double nMaxDepth, int nNumber);
+
 private:
 	unsigned int m_nId;
+
+	KeyFrame * m_pPreviousKeyFrame;
 
 	Camera * m_pCamera;
 
@@ -131,5 +140,16 @@ inline bool KeyFrame::RemoveCovisibleEdge(KeyFrame * pKeyFrame){
 inline int KeyFrame::GetId(){
 	return this->m_nId;
 }
+
+
+inline void KeyFrame::SetPreviousKeyFrame(KeyFrame * pKeyFrame){
+	this->m_pPreviousKeyFrame = pKeyFrame;
+}
+
+inline KeyFrame * KeyFrame::GetPreviousKeyFrame(){
+	return this->m_pPreviousKeyFrame;
+}
+
+
 
 #endif

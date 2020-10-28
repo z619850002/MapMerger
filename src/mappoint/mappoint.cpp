@@ -22,4 +22,11 @@ MapPoint::MapPoint(cv::Point3d iPosition){
 
 
 
+MapPoint::MapPoint(RealPoint * pRealPoint){
+	this->m_nId = MapPoint::m_nCountID ++;
+	this->m_pRealPoint = pRealPoint;
+}
+
+
+
 

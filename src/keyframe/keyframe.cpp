@@ -50,3 +50,36 @@ void KeyFrame::AddMapPoint(MapPoint * pMapPoint){
 	cv::Point2d iObservation = this->m_pCamera->ProjectPoint(iPosition3d);
 	this->AddMapPoint(pMapPoint, iObservation);
 }
+
+
+
+
+vector<cv::Point3d> KeyFrame::SamplePoint(double nWidth, double nHeight, double nMinDepth, double nMaxDepth, int nNumber)
+{
+		vector<cv::Point3d> gPoints;
+		gPoints.reserve(nNumber);
+		cv::RNG iRNG(12345);
+		for (int i=0;i<nNumber;i++){		
+			double nImageX = iRNG.uniform(0.0, nWidth);
+			double nImageY = iRNG.uniform(0.0, nHeight);
+			double nDepth = iRNG.uniform(nMinDepth, nMaxDepth);
+
+			cv::Mat mK = this->m_pCamera->GetK();
+			cv::Mat mImagePoint = (cv::Mat_<double>(3 , 1) << nImageX, nImageY, 1.0);
+			
+			cv::Mat mCameraPoint = mK.inv() * mImagePoint * nDepth;
+			Eigen::Vector4d mHomogeneousCameraPoint;
+			mHomogeneousCameraPoint <<  mCameraPoint.at<double>(0 , 0),
+										mCameraPoint.at<double>(1 , 0),
+										mCameraPoint.at<double>(2 , 0),
+										1.0;
+
+
+			Eigen::Vector4d mWorldPoint = this->m_mPose.inverse() * mHomogeneousCameraPoint;
+
+			gPoints.push_back(cv::Point3d(	mWorldPoint(0 , 0),
+											mWorldPoint(1 , 0),
+											mWorldPoint(2 , 0)));
+		}
+		return gPoints;
+	}

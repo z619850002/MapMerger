@@ -22,6 +22,7 @@
 #include "../camera/camera.h"
 #include "../keyframe/keyframe.h"
 
+using namespace std;
 
 
 class Map
@@ -38,9 +39,11 @@ public:
 
 private:
 	unsigned int m_nId;
+	vector<KeyFrame *> m_gKeyFrames;
 	set<KeyFrame *> m_sKeyFrames;
 	set<MapPoint *> m_sMapPoints;
-	
+
+
 
 	static unsigned int m_nCountID;
 
@@ -49,6 +52,7 @@ private:
 
 inline void Map::AddKeyFrame(KeyFrame * pKeyFrame){
 	this->m_sKeyFrames.insert(pKeyFrame);
+	this->m_gKeyFrames.push_back(pKeyFrame);
 }
 
 inline void Map::AddMapPoint(MapPoint * pMapPoint){

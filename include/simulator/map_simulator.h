@@ -54,69 +54,14 @@ public:
 	bool SwitchMap(Map * pMap);
 	bool SwitchMap(int nMapId);
 
+	
 
-	vector<MapPoint *> SimulateMapPoints(int nNumber){
-		vector<MapPoint *> gMapPoints;
-		//Random number generator.
-		cv::RNG iRNG(12345);
-		for (int i = 0; i < nNumber; i++) 
-    	{
-            double nX = iRNG.uniform(	this->m_iMapSimulatorRange.m_nMinX, 
-            							this->m_iMapSimulatorRange.m_nMaxX);
+	
+	vector<MapPoint *> SimulateMapPoints(MapPointsRange iMapPointRange);
 
-            double nY = iRNG.uniform(	this->m_iMapSimulatorRange.m_nMinY, 
-            							this->m_iMapSimulatorRange.m_nMaxY);
+	vector<RealPoint *> SimulateRealPoints(int nNumber);
 
-            double nZ = iRNG.uniform(	this->m_iMapSimulatorRange.m_nMinZ, 
-            							this->m_iMapSimulatorRange.m_nMaxZ);
-
-            MapPoint * pNewMapPoint = new MapPoint(cv::Point3d(nX, nY, nZ));
-            this->m_sMapPoints.insert(pNewMapPoint);
-            gMapPoints.push_back(pNewMapPoint);
-    	}
-    	return gMapPoints;
-	}
-
-	vector<Sophus::SE3> SimulateTrajectory(Sophus::SE3 iStartPose, Sophus::SE3 iEndPose, int nNumber){
-		//Random number generator
-		cv::RNG iRNG(12345);
-		double nSigma = 0.000001;
-
-		vector<Sophus::SE3> gPoses;
-		gPoses.reserve(nNumber+2);
-		//Sampled all poses
-		gPoses.push_back(iStartPose);
-		for (int i=1;i<=nNumber;i++){
-			double nRatio = 1.0/(double)nNumber * (double)i;
-			Sophus::SE3 iSampledPose = TrajectoryInterpolate(
-				iStartPose, 
-				iEndPose, 
-				nRatio);
-			
-			//Add noise to the smooth trajectory.
-			double nNoiseX = iRNG.gaussian(nSigma);
-			double nNoiseY = iRNG.gaussian(nSigma);
-			double nNoiseZ = iRNG.gaussian(nSigma);
-			double nNoiseR1 = iRNG.gaussian(nSigma);
-			double nNoiseR2 = iRNG.gaussian(nSigma);
-			double nNoiseR3 = iRNG.gaussian(nSigma);
-
-			Eigen::Matrix<double, 6 , 1> mNoiseVec(6);
-			mNoiseVec << nNoiseX, nNoiseY, nNoiseZ, nNoiseR1, nNoiseR2, nNoiseR3;
-
-			iStartPose = Sophus::SE3::exp(iStartPose.log() + mNoiseVec);
-
-			gPoses.push_back(iSampledPose);
-
-
-		}
-		gPoses.push_back(iEndPose);
-
-		
-		return gPoses;
-
-
-	}
+	vector<Sophus::SE3> SimulateTrajectory(Sophus::SE3 iStartPose, Sophus::SE3 iEndPose, int nNumber);
 
 private:
 
@@ -134,7 +79,8 @@ private:
 
 	set<Map *> m_sMaps;
 
-	set<MapPoint *> m_sMapPoints;
+	set<RealPoint *> m_sRealPoints;
+	
 
 	map<int, Map *> m_dMapAndId;
 

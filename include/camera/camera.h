@@ -19,7 +19,10 @@
 #include <vector>
 #include <map>
 
+#include "../mappoint/mappoint.h"
 
+class MapPoint;
+class KeyFrame;
 
 class Camera
 {
@@ -27,7 +30,14 @@ public:
 	Camera();
 	Camera(cv::Mat mK);
 
+	bool CanBeObserved(cv::Point3d iPointCamera);
+	bool CanBeObserved(MapPoint * pMapPoint);
+
+	cv::Point2d ObservePoint(cv::Point3d iPointCamera);
+	cv::Point2d ObservePoint(MapPoint * pMapPoint);
+	
 	cv::Point2d ProjectPoint(cv::Point3d iPointCamera);
+	cv::Point2d ProjectPoint(MapPoint * pMapPoint);
 
 	void SetK(cv::Mat mK);
 	cv::Mat GetK();
@@ -36,6 +46,9 @@ public:
 private:
 	cv::Mat m_mK;
 
+	double m_nObservationCovariance;
+
+	double m_nFov;
 	
 };
 

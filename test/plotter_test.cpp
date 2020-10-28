@@ -7,7 +7,7 @@ using namespace std;
 void initializePose(Sophus::SE3& T_FG,Sophus::SE3& T_LG,
 					Sophus::SE3& T_BG,Sophus::SE3& T_RG)
 {
-	double nScale = 4;
+	double nScale = 2;
 
 
 	// Initialize T_FG
@@ -135,6 +135,11 @@ int main2(){
 
 
 int main(){
+	cv::Mat mK = (cv::Mat_<double>(3 , 3) << 500 , 0  , 640 , 0 , 500 , 360 , 0 , 0 , 1);
+	Camera * pCamera = new Camera(mK);
+
+
+
 	Sophus::SE3 mTF, mTL, mTB, mTR;
 	initializePose(mTF, mTL, mTB, mTR);
 
@@ -142,23 +147,71 @@ int main(){
 	vector<MapPoint *> gMapPoints;
 
 	MapSimulator * pSimulator = new MapSimulator();
-	gPoses = pSimulator->SimulateTrajectory(mTF, mTB, 10);
-	gMapPoints = pSimulator->SimulateMapPoints(1000);
+	gPoses = pSimulator->SimulateTrajectory(mTF, mTL, 5);
 
+	vector<Sophus::SE3> gPoses2, gPoses3, gPoses4;
+	gPoses2 = pSimulator->SimulateTrajectory(mTL, mTB, 5);
+	gPoses3 = pSimulator->SimulateTrajectory(mTB, mTR, 5);
+	gPoses4 = pSimulator->SimulateTrajectory(mTR, mTF, 5);
+	gPoses.insert(gPoses.end(), gPoses2.begin(), gPoses2.end());
+	gPoses.insert(gPoses.end(), gPoses3.begin(), gPoses3.end());
+	gPoses.insert(gPoses.end(), gPoses4.begin(), gPoses4.end());
+
+
+	vector<Sophus::SE3> gSecondPoses;
+
+
+
+	Sophus::SE3 mT_transform =  mTB.inverse() * mTF;
+
+	Eigen::Vector3d mTransformTranslation = mT_transform.translation();
+	Eigen::Matrix3d mTransformRotation = mT_transform.rotation_matrix();
+	Eigen::Vector3d mOnlyMoveTranslation = mTransformRotation * mTF.inverse().translation() + mTransformTranslation - mTF.inverse().translation();
+
+	for (Sophus::SE3 iFirstPose : gPoses){
+
+		Sophus::SE3 mRelativePose2 = Sophus::SE3(Eigen::Matrix3d::Identity(), mOnlyMoveTranslation * 1.1).inverse();
+		Sophus::SE3 iSecondPose = iFirstPose * mRelativePose2;
+		
+		// Sophus::SE3 iSecondPose = iFirstPose *  Sophus::SE3(Eigen::Matrix3d::Identity(), mMove);
+		gSecondPoses.push_back(iSecondPose);
+	}
 
 
 	Plotter * pPlotter = new Plotter();
 	
 	for (int i=0;i<gPoses.size();i++){
 		Sophus::SE3 iPose = gPoses[i];
-		KeyFrame * pKeyFrame = new KeyFrame();
+		KeyFrame * pKeyFrame = new KeyFrame(pCamera);
 		pKeyFrame->SetPose(iPose.matrix());
 		pPlotter->AddKeyFrame(pKeyFrame);
 	}
 
-	for (auto item : gMapPoints){
-		pPlotter->AddMapPoints(item);
+
+	for (int i=0;i<gSecondPoses.size();i++){
+		Sophus::SE3 iPose = gSecondPoses[i];
+		KeyFrame * pKeyFrame = new KeyFrame(pCamera);
+		pKeyFrame->SetPose(iPose.matrix());
+		pPlotter->AddKeyFrame(pKeyFrame);
 	}
+
+	vector<KeyFrame * > gKeyFrames = pPlotter->GetKeyFrames();
+
+	for (KeyFrame * pKeyFrame : gKeyFrames){
+		vector<cv::Point3d> gPoints = pKeyFrame->SamplePoint(1280, 720, 0.1, 5, 10);
+		vector<MapPoint *> gMapPoints;
+		gMapPoints.reserve(gPoints.size());
+		for (cv::Point3d iPoint : gPoints){
+			RealPoint * pNewRealPoint = new RealPoint(iPoint);
+			pPlotter->AddRealPoints(pNewRealPoint);
+		}
+
+	}
+
+
+	// for (auto item : gMapPoints){
+	// 	pPlotter->AddMapPoints(item);
+	// }
 
 	pPlotter->Run();
 

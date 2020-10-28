@@ -19,12 +19,16 @@
 #include <vector>
 #include <map>
 #include "../keyframe/keyframe.h"
+#include "../camera/camera.h"
+#include "../realpoint/realpoint.h"
 
 
 
 using namespace std;
 
 class KeyFrame;
+class Camera;
+class RealPoint;
 
 class MapPoint
 {
@@ -32,6 +36,8 @@ public:
 	MapPoint();
 
 	MapPoint(cv::Point3d iPosition);
+
+	MapPoint(RealPoint * pRealPoint);
 
 	void AddKeyFrame(KeyFrame * pKeyFrame, cv::Point2d iObservation);
 
@@ -43,6 +49,10 @@ public:
 
 	int GetId();
 
+	void SetRealPoint(RealPoint * pRealPoint);
+
+	RealPoint * GetRealPoint();
+
 private:
 	unsigned int m_nId;
 
@@ -50,8 +60,11 @@ private:
 	
 	cv::Point3d m_iPosition;
 
+	//Point in the real world
+	RealPoint * m_pRealPoint;
 
 	static unsigned int m_nCountID;
+
 	
 };
 
@@ -86,6 +99,17 @@ inline cv::Point3d MapPoint::GetPosition(){
 
 inline int MapPoint::GetId(){
 	return this->m_nId;
+}
+
+
+
+inline void MapPoint::SetRealPoint(RealPoint * pRealPoint){
+	this->m_pRealPoint = pRealPoint;
+}
+
+
+inline RealPoint * MapPoint::GetRealPoint(){
+	return this->m_pRealPoint;
 }
 
 
