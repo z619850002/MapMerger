@@ -35,6 +35,11 @@ public:
 
 	void UpdateCovisibleGraph();
 
+	vector<KeyFrame *> GetKeyFrames();
+	vector<MapPoint *> GetMapPoints();
+
+	void Localize();
+
 	int GetId();
 
 private:
@@ -43,7 +48,7 @@ private:
 	set<KeyFrame *> m_sKeyFrames;
 	set<MapPoint *> m_sMapPoints;
 
-
+	Eigen::MatrixXd m_mLocalPose;
 
 	static unsigned int m_nCountID;
 
@@ -64,7 +69,17 @@ inline int Map::GetId(){
 	return this->m_nId;
 }
 
+inline vector<KeyFrame *> Map::GetKeyFrames(){
+	return this->m_gKeyFrames;
+}
 
+
+inline vector<MapPoint *> Map::GetMapPoints(){
+	vector<MapPoint *> gMapPoints;
+	gMapPoints.clear();
+	gMapPoints.insert(gMapPoints.end(), this->m_sMapPoints.begin(), this->m_sMapPoints.end());
+	return gMapPoints;
+}
 
 
 #endif

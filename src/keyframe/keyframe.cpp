@@ -83,3 +83,14 @@ vector<cv::Point3d> KeyFrame::SamplePoint(double nWidth, double nHeight, double 
 		}
 		return gPoints;
 	}
+
+
+
+
+bool KeyFrame::CanObserve(cv::Point3d iPointWorld){
+	Eigen::Vector4d mPositionWorld;
+	mPositionWorld << iPointWorld.x, iPointWorld.y, iPointWorld.z, 1.0;
+	Eigen::Vector4d mCameraPoint = this->m_mPose * mPositionWorld;
+	cv::Point3d iCameraPoint(mCameraPoint[0], mCameraPoint[1], mCameraPoint[2]);
+	return this->m_pCamera->CanBeObserved(iCameraPoint);
+}

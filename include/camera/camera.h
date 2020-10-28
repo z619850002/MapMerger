@@ -42,6 +42,9 @@ public:
 	void SetK(cv::Mat mK);
 	cv::Mat GetK();
 
+	double GetMaxDepth();
+	void SetMaxDepth(double nMaxDepth);
+
 
 private:
 	cv::Mat m_mK;
@@ -49,6 +52,8 @@ private:
 	double m_nObservationCovariance;
 
 	double m_nFov;
+
+	double m_nMaxDepth;
 	
 };
 
@@ -62,7 +67,13 @@ inline cv::Mat Camera::GetK(){
 }
 
 
+inline double Camera::GetMaxDepth(){
+	return this->m_nMaxDepth;
+}
 
+inline void Camera::SetMaxDepth(double nMaxDepth){
+	this->m_nMaxDepth = nMaxDepth;
+}
 
 
 #endif

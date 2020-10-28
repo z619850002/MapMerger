@@ -10,3 +10,6 @@ TARGET_LINK_LIBRARIES( map_test myslam ${THIRD_PARTY_LIBS})
 ADD_EXECUTABLE(plotter_test plotter_test.cpp)
 TARGET_LINK_LIBRARIES( plotter_test myslam ${THIRD_PARTY_LIBS})
 
+ADD_EXECUTABLE(map_simulator_test map_simulator_test.cpp)
+TARGET_LINK_LIBRARIES( map_simulator_test myslam ${THIRD_PARTY_LIBS})
+

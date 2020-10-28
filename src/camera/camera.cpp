@@ -5,7 +5,7 @@ using namespace std;
 
 Camera::Camera(){
 	this->m_nObservationCovariance = 1.5;	
-	this->m_nFov = 50;
+	this->m_nFov = 150;
 }
 
 
@@ -13,7 +13,8 @@ Camera::Camera(cv::Mat mK)
 	: m_mK(mK)
 {
 	this->m_nObservationCovariance = 1.5;	
-	this->m_nFov = 50;
+	this->m_nFov = 150;
+	this->m_nMaxDepth = 2;
 }
 
 
@@ -63,13 +64,15 @@ bool Camera::CanBeObserved(MapPoint * pMapPoint){
 
 
 bool Camera::CanBeObserved(cv::Point3d iPointCamera){
-	if (iPointCamera.z<=0){
+	cout << "Point Camera is: " << iPointCamera << endl;
+	if (iPointCamera.z<=0.01 || iPointCamera.z >= this->m_nMaxDepth){
 		return false;
 	}
 	double nDistance = sqrt((iPointCamera.x * iPointCamera.x) + (iPointCamera.y * iPointCamera.y));
 	double nDepth = iPointCamera.z;
-	double nFovRad = this->m_nFov/(45.0 / atan(1.0));
-	if (nDistance/nDistance > tan(nFovRad)){
+	double nFovRad = (this->m_nFov/2)/(45.0 / atan(1.0));
+	
+	if (nDistance/nDepth > tan(nFovRad)){
 		return false;
 	}
 	return true;

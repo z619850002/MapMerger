@@ -50,11 +50,13 @@ public:
 	
 	void GenerateNewMap();
 	void AddMap(Map * pMap);
+	vector<Map *> GetMaps();
 
 	bool SwitchMap(Map * pMap);
 	bool SwitchMap(int nMapId);
 
-	
+	void SimulateScene();
+
 
 	
 	vector<MapPoint *> SimulateMapPoints(MapPointsRange iMapPointRange);
@@ -84,6 +86,8 @@ private:
 
 	map<int, Map *> m_dMapAndId;
 
+	map<int, Sophus::SE3> m_dKeyFramePoseGroundTruth;
+
 
 	Map * m_pCurrentMap;
 	
@@ -110,6 +114,13 @@ inline bool MapSimulator::SwitchMap(Map * pMap){
 	return false;
 }
 
+
+inline vector<Map *> MapSimulator::GetMaps(){
+	vector<Map * > gMaps;
+	gMaps.clear();
+	gMaps.insert(gMaps.begin(), this->m_sMaps.begin(), this->m_sMaps.end());
+	return gMaps;
+}
 
 
 #endif

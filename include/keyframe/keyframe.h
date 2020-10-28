@@ -38,6 +38,9 @@ public:
 
 	void AddMapPoint(MapPoint * pMapPoint);
 
+	bool CanObserve(cv::Point3d iPointWorld);
+
+
 	cv::Point2d GetObservation(MapPoint * pMapPoint);
 
 	void SetPose(Eigen::MatrixXd mPose);
@@ -63,7 +66,11 @@ public:
 
 	int GetId();
 
+	vector<KeyFrame *> GetCovisibleKeyFrames();
+
 	vector<cv::Point3d> SamplePoint(double nWidth, double nHeight, double nMinDepth, double nMaxDepth, int nNumber);
+
+	vector<MapPoint *> GetMapPoints();
 
 private:
 	unsigned int m_nId;
@@ -150,6 +157,24 @@ inline KeyFrame * KeyFrame::GetPreviousKeyFrame(){
 	return this->m_pPreviousKeyFrame;
 }
 
+inline vector<KeyFrame *> KeyFrame::GetCovisibleKeyFrames(){
+	vector<KeyFrame *> gCovisibleKeyFrames;
+	gCovisibleKeyFrames.reserve(this->m_dCovisibleEdges.size());
+	for (auto pPair : this->m_dCovisibleEdges){
+		gCovisibleKeyFrames.push_back(pPair.first);
+	}
+	return gCovisibleKeyFrames;
+}
+
+
+inline vector<MapPoint *> KeyFrame::GetMapPoints(){
+	vector<MapPoint *> gMapPoints;
+	gMapPoints.reserve(this->m_dMapPointsAndObservations.size());
+	for (auto pPair : this->m_dMapPointsAndObservations){
+		gMapPoints.push_back(pPair.first);
+	}
+	return gMapPoints;
+}
 
 
 #endif
