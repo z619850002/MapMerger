@@ -72,6 +72,9 @@ public:
 
 	vector<MapPoint *> GetMapPoints();
 
+	map<MapPoint *, cv::Point2d> GetAllObservations();
+
+
 private:
 	unsigned int m_nId;
 
@@ -176,5 +179,9 @@ inline vector<MapPoint *> KeyFrame::GetMapPoints(){
 	return gMapPoints;
 }
 
+
+inline map<MapPoint *, cv::Point2d> KeyFrame::GetAllObservations(){
+	return this->m_dMapPointsAndObservations;
+}
 
 #endif

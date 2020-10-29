@@ -47,7 +47,19 @@ int KeyFrame::CheckCovisibility(KeyFrame * pKeyFrame){
 
 void KeyFrame::AddMapPoint(MapPoint * pMapPoint){
 	cv::Point3d iPosition3d = pMapPoint->GetPosition();
-	cv::Point2d iObservation = this->m_pCamera->ProjectPoint(iPosition3d);
+	//Firstly convert the point to camera coordinate.
+
+	Eigen::Vector4d mPositionWorld(	iPosition3d.x,
+									iPosition3d.y,
+									iPosition3d.z,
+									1.0);
+
+	Eigen::Vector4d mPositionCamera = this->m_mPose * mPositionWorld;
+	cv::Point3d iPositionCamera(	mPositionCamera(0),
+									mPositionCamera(1),
+									mPositionCamera(2));
+
+	cv::Point2d iObservation = this->m_pCamera->ProjectPoint(iPositionCamera);
 	this->AddMapPoint(pMapPoint, iObservation);
 }
 
@@ -94,3 +106,5 @@ bool KeyFrame::CanObserve(cv::Point3d iPointWorld){
 	cv::Point3d iCameraPoint(mCameraPoint[0], mCameraPoint[1], mCameraPoint[2]);
 	return this->m_pCamera->CanBeObserved(iCameraPoint);
 }
+
+

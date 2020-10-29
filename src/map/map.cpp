@@ -59,8 +59,8 @@ void Map::Localize(){
  
 
 void Map::AddNoise(){
-	double nSigmaMapPoint = 0.1;
-	double nSigma = 0.1;
+	double nSigmaMapPoint = 0.01;
+	double nSigma = 0.01;
 	cv::RNG iRNG(10000);
 	//The noise should be added to both the pose and the map point
 	for (MapPoint * pMapPoint : this->m_sMapPoints){
