@@ -42,9 +42,7 @@ void Map::Localize(){
 		Eigen::MatrixXd mNewPose =  pKeyFrame->GetPose() * this->m_mLocalPose.inverse();
 		Eigen::Matrix3d mRotation = mNewPose.block(0, 0 , 3 , 3);
 		Eigen::Vector3d mTranslation = mNewPose.block(0 , 3 , 3 , 1);
-		// cout << "New pose is: " << endl << mNewPose << endl;
-		// cout << "Rotation is: " << endl << mRotation << endl;
-		// cout << "Translation is: " << endl << mTranslation << endl;
+
 
 		Sophus::SE3 mScaledPose = Sophus::SE3(mRotation,  mTranslation * this->m_nScale);
 		pKeyFrame->SetPose(mScaledPose.matrix());
@@ -61,8 +59,8 @@ void Map::Localize(){
  
 
 void Map::AddNoise(){
-	double nSigmaMapPoint = 0.02;
-	double nSigma = 0.02;
+	double nSigmaMapPoint = 0.1;
+	double nSigma = 0.1;
 	cv::RNG iRNG(10000);
 	//The noise should be added to both the pose and the map point
 	for (MapPoint * pMapPoint : this->m_sMapPoints){
@@ -90,5 +88,45 @@ void Map::AddNoise(){
 
 		Sophus::SE3 mNewPose = Sophus::SE3::exp(mVec);
 		pKeyFrame->SetPose(mNewPose.matrix());
+	}
+}
+
+
+
+void Map::Transform(Eigen::MatrixXd mTransform){
+
+	Eigen::Matrix3d mScaledRotation = mTransform.block(0 , 0 , 3 , 3);
+	double nScale = mScaledRotation.determinant();
+	Eigen::Matrix3d mRotation = mScaledRotation;
+	Eigen::Vector3d mTranslation = mTransform.block(0 , 3 , 3 , 1);
+
+	// Eigen::MatrixXd
+	
+	for (MapPoint * pMapPoint : this->GetMapPoints()){
+		cv::Point3d iPosition = pMapPoint->GetPosition();
+
+		Eigen::Vector4d mPosition(iPosition.x, iPosition.y, iPosition.z , 1.0);
+
+		mPosition = mTransform * mPosition;
+		
+		pMapPoint->SetPosition(cv::Point3d(	mPosition(0), 
+											mPosition(1), 
+											mPosition(2)));
+	}
+
+	for (KeyFrame * pKeyFrame : this->m_sKeyFrames){
+		// Sophus::SE3 mSophusPose = Sophus::SE3(mRotation, mTranslation/nScale);
+
+		Eigen::MatrixXd mPose = pKeyFrame->GetPose() * mTransform.inverse();
+		Eigen::Matrix3d mScaledRotation2 = mPose.block(0 , 0 , 3 , 3);
+		
+		
+		double nScale2 = mScaledRotation2.determinant();
+		mPose /= pow(nScale2, 1.0/3.0);
+		mPose(3 , 3) = 1;
+
+		
+		
+		pKeyFrame->SetPose(mPose);
 	}
 }

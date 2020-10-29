@@ -50,6 +50,8 @@ public:
 	void SetScale(double nScale);
 	double GetScale();
 
+	void Transform(Eigen::MatrixXd mTransform);
+
 private:
 	unsigned int m_nId;
 	vector<KeyFrame *> m_gKeyFrames;

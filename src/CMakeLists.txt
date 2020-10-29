@@ -5,6 +5,8 @@ ADD_LIBRARY( myslam SHARED
 	./map/map.cpp
 	./simulator/map_simulator.cpp
 	./realpoint/realpoint.cpp
+	./merger/map_merger.cpp
+	./optimizer/sim3_solver.cpp
 )
 
 TARGET_LINK_LIBRARIES( myslam
