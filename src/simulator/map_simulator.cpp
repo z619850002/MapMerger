@@ -85,7 +85,7 @@ vector<Sophus::SE3> MapSimulator::SimulateTrajectory(Sophus::SE3 iStartPose, Sop
 	gPoses.reserve(nNumber+2);
 	//Sampled all poses
 	gPoses.push_back(iStartPose);
-	for (int i=1;i<=nNumber;i++){
+	for (int i=1;i<nNumber;i++){
 		double nRatio = 1.0/(double)nNumber * (double)i;
 		Sophus::SE3 iSampledPose = TrajectoryInterpolate(
 			iStartPose, 
@@ -109,7 +109,7 @@ vector<Sophus::SE3> MapSimulator::SimulateTrajectory(Sophus::SE3 iStartPose, Sop
 
 
 	}
-	gPoses.push_back(iEndPose);
+	// gPoses.push_back(iEndPose);
 
 	
 	return gPoses;

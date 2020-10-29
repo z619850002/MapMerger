@@ -5,6 +5,9 @@
 #include <Eigen/Core>
 #include <Eigen/Dense>
 
+//Sophus
+#include "sophus/se3.h"
+
 //OpenCV
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -42,6 +45,11 @@ public:
 
 	int GetId();
 
+	void AddNoise();
+
+	void SetScale(double nScale);
+	double GetScale();
+
 private:
 	unsigned int m_nId;
 	vector<KeyFrame *> m_gKeyFrames;
@@ -51,6 +59,8 @@ private:
 	Eigen::MatrixXd m_mLocalPose;
 
 	static unsigned int m_nCountID;
+
+	double m_nScale;
 
 };
 
@@ -80,6 +90,16 @@ inline vector<MapPoint *> Map::GetMapPoints(){
 	gMapPoints.insert(gMapPoints.end(), this->m_sMapPoints.begin(), this->m_sMapPoints.end());
 	return gMapPoints;
 }
+
+inline void Map::SetScale(double nScale){
+	this->m_nScale = nScale;
+}
+
+inline double Map::GetScale(){
+	return this->m_nScale;
+}
+
+
 
 
 #endif

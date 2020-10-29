@@ -64,7 +64,7 @@ bool Camera::CanBeObserved(MapPoint * pMapPoint){
 
 
 bool Camera::CanBeObserved(cv::Point3d iPointCamera){
-	cout << "Point Camera is: " << iPointCamera << endl;
+	// cout << "Point Camera is: " << iPointCamera << endl;
 	if (iPointCamera.z<=0.01 || iPointCamera.z >= this->m_nMaxDepth){
 		return false;
 	}

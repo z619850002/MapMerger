@@ -57,12 +57,17 @@ public:
 	    this->mCameraSize = 0.08;
 	    this->mCameraLineWidth = 3;
 
-	    this->m_pMap = pMap;
+	    this->m_gMaps.clear();
+	    this->m_gMaps.push_back(pMap);
 	}
 
 
 public:
     
+	void AddMap(Map * pMap){
+		this->m_gMaps.push_back(pMap);
+	}
+
 
     void Run(string nName = "MapMerger: Map Viewer"){
     	pangolin::CreateWindowAndBind(nName,1024,768);
@@ -133,78 +138,86 @@ public:
     	// 	cout << "Twc is " << endl << Twc << endl;
     	// 	cout << endl << endl ;
     	// }
-	    vector<KeyFrame *> gKeyFrames = this->m_pMap->GetKeyFrames();
-
-        for(int i=0; i< gKeyFrames.size(); i++)
-        {
-
-            KeyFrame * pKeyFrame = gKeyFrames[i];
-
-            Eigen::MatrixXd mTwc = pKeyFrame->GetPose().inverse();
-
-            
-
-            glPushMatrix();
-            // cout << "Twc is " << endl << Twc << endl;
-
-	        std::vector<GLfloat > gTwc = {	mTwc(0,0),mTwc(1,0), mTwc(2,0), mTwc(3,0),
-				    						mTwc(0,1),mTwc(1,1), mTwc(2,1), mTwc(3,1), 
-				    						mTwc(0,2),mTwc(1,2), mTwc(2,2), mTwc(3,2),
-				    						mTwc(0,3),mTwc(1,3), mTwc(2,3), mTwc(3,3)};
-
-			
-	        glMultMatrixf(gTwc.data());
+	    for (Map * pMap : this->m_gMaps){
+	    	vector<KeyFrame *> gKeyFrames = pMap->GetKeyFrames();	
 
 
-            glLineWidth(mKeyFrameLineWidth);
-            glColor3f(((float)(i%3))/2,0.0f,1.0f);
-            glBegin(GL_LINES);
-            glVertex3f(0,0,0);
-            glVertex3f(w,h,z);
-            glVertex3f(0,0,0);
-            glVertex3f(w,-h,z);
-            glVertex3f(0,0,0);
-            glVertex3f(-w,-h,z);
-            glVertex3f(0,0,0);
-            glVertex3f(-w,h,z);
+	        for(int i=0; i< gKeyFrames.size(); i++)
+	        {
 
-            glVertex3f(w,h,z);
-            glVertex3f(w,-h,z);
+	            KeyFrame * pKeyFrame = gKeyFrames[i];
 
-            glVertex3f(-w,h,z);
-            glVertex3f(-w,-h,z);
+	            Eigen::MatrixXd mTwc = pKeyFrame->GetPose().inverse();
 
-            glVertex3f(-w,h,z);
-            glVertex3f(w,h,z);
+	            
 
-            glVertex3f(-w,-h,z);
-            glVertex3f(w,-h,z);
-            glEnd();
+	            glPushMatrix();
+	            // cout << "Twc is " << endl << Twc << endl;
 
-            glPopMatrix();
-        }
+		        std::vector<GLfloat > gTwc = {	mTwc(0,0),mTwc(1,0), mTwc(2,0), mTwc(3,0),
+					    						mTwc(0,1),mTwc(1,1), mTwc(2,1), mTwc(3,1), 
+					    						mTwc(0,2),mTwc(1,2), mTwc(2,2), mTwc(3,2),
+					    						mTwc(0,3),mTwc(1,3), mTwc(2,3), mTwc(3,3)};
 
+				
+		        glMultMatrixf(gTwc.data());
 
-        for(int i=0; i< gKeyFrames.size(); i++)
-        {
-
-            KeyFrame * pKeyFrame = gKeyFrames[i];
-
-            for (KeyFrame * pCovisibleKeyFrame : pKeyFrame->GetCovisibleKeyFrames()){
 
 	            glLineWidth(mKeyFrameLineWidth);
 	            glColor3f(((float)(i%3))/2,0.0f,1.0f);
 	            glBegin(GL_LINES);
-	            Eigen::Vector3d iStartPosition = pKeyFrame->GetPose().inverse().block(0 , 3 , 3 , 1);
+	            glVertex3f(0,0,0);
+	            glVertex3f(w,h,z);
+	            glVertex3f(0,0,0);
+	            glVertex3f(w,-h,z);
+	            glVertex3f(0,0,0);
+	            glVertex3f(-w,-h,z);
+	            glVertex3f(0,0,0);
+	            glVertex3f(-w,h,z);
 
-	            Eigen::Vector3d iEndPosition = pCovisibleKeyFrame->GetPose().inverse().block(0 , 3 , 3 , 1);
-	            glVertex3f(iStartPosition[0],iStartPosition[1],iStartPosition[2]);
-	            glVertex3f(iEndPosition[0],iEndPosition[1],iEndPosition[2]);
-	            glEnd();	
-            }
-			
+	            glVertex3f(w,h,z);
+	            glVertex3f(w,-h,z);
 
-        }
+	            glVertex3f(-w,h,z);
+	            glVertex3f(-w,-h,z);
+
+	            glVertex3f(-w,h,z);
+	            glVertex3f(w,h,z);
+
+	            glVertex3f(-w,-h,z);
+	            glVertex3f(w,-h,z);
+	            glEnd();
+
+	            glPopMatrix();
+	        }
+
+
+	        for(int i=0; i< gKeyFrames.size(); i++)
+	        {
+
+	            KeyFrame * pKeyFrame = gKeyFrames[i];
+
+	            for (KeyFrame * pCovisibleKeyFrame : pKeyFrame->GetCovisibleKeyFrames()){
+
+		            glLineWidth(mKeyFrameLineWidth);
+		            glColor3f(((float)(i%3))/2,0.0f,1.0f);
+		            glBegin(GL_LINES);
+		            Eigen::Vector3d iStartPosition = pKeyFrame->GetPose().inverse().block(0 , 3 , 3 , 1);
+
+		            Eigen::Vector3d iEndPosition = pCovisibleKeyFrame->GetPose().inverse().block(0 , 3 , 3 , 1);
+		            glVertex3f(iStartPosition[0],iStartPosition[1],iStartPosition[2]);
+		            glVertex3f(iEndPosition[0],iEndPosition[1],iEndPosition[2]);
+		            glEnd();	
+	            }
+				
+
+	        }
+
+
+
+	    }
+
+	    
 
     }
 
@@ -214,11 +227,16 @@ public:
 	    glPointSize(mPointSize);
 	    glBegin(GL_POINTS);
 	    glColor3f(0.0,1.0,0.0);
-	    vector<MapPoint *> gMapPoints = this->m_pMap->GetMapPoints();
-	    for(size_t i=0, iend=gMapPoints.size(); i<iend;i++)
-	    {
-	        cv::Point3d iPosition = gMapPoints[i]->GetPosition();
-	        glVertex3f(iPosition.x,iPosition.y,iPosition.z);
+
+
+	    for (Map * pMap : this->m_gMaps){
+
+	    	vector<MapPoint *> gMapPoints = pMap->GetMapPoints();
+	    	for(size_t i=0, iend=gMapPoints.size(); i<iend;i++)
+	    	{
+	        	cv::Point3d iPosition = gMapPoints[i]->GetPosition();
+	        	glVertex3f(iPosition.x,iPosition.y,iPosition.z);
+	    	}
 	    }
 
 	    glEnd();
@@ -226,7 +244,7 @@ public:
 
 
 
-    Map * m_pMap;
+    vector<Map *> m_gMaps;
 
 
     // 1/fps in ms
