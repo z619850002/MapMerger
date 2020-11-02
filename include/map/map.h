@@ -35,28 +35,43 @@ public:
 
 	void AddKeyFrame(KeyFrame * pKeyFrame);
 	void AddMapPoint(MapPoint * pMapPoint);
+	void DeleteMapPoint(MapPoint * pMapPoint);
 
 	void UpdateCovisibleGraph();
 
 	vector<KeyFrame *> GetKeyFrames();
 	vector<MapPoint *> GetMapPoints();
 
+	set<KeyFrame *> GetKeyFramesSet();
+	set<MapPoint *> GetMapPointsSet();
+
 	void Localize();
 
 	int GetId();
 
-	void AddNoise();
+	void AddNoise(double nSigmaMapPoint = 0.02, double nSigma = 0.02);
 
 	void SetScale(double nScale);
 	double GetScale();
 
 	void Transform(Eigen::MatrixXd mTransform);
 
+	void MergeMap(Map * pMergedMap);
+
+	double ComputeATE(vector<Sophus::SE3> gGroundTruth, vector<double> & gErrors);
+
+
+	set<KeyFrame *> GetCommonKeyFrames();
+	set<MapPoint *> GetCommonMapPoints();
+
 private:
 	unsigned int m_nId;
 	vector<KeyFrame *> m_gKeyFrames;
 	set<KeyFrame *> m_sKeyFrames;
 	set<MapPoint *> m_sMapPoints;
+
+	set<MapPoint *> m_sFusedMapPoints;
+	set<KeyFrame *> m_sCommonKeyFrames;
 
 	Eigen::MatrixXd m_mLocalPose;
 
@@ -75,6 +90,11 @@ inline void Map::AddKeyFrame(KeyFrame * pKeyFrame){
 inline void Map::AddMapPoint(MapPoint * pMapPoint){
 	this->m_sMapPoints.insert(pMapPoint);
 }
+
+inline void Map::DeleteMapPoint(MapPoint * pMapPoint){
+	this->m_sMapPoints.erase(pMapPoint);
+}
+
 
 
 inline int Map::GetId(){
@@ -101,6 +121,23 @@ inline double Map::GetScale(){
 	return this->m_nScale;
 }
 
+
+inline set<KeyFrame *> Map::GetCommonKeyFrames(){
+	return this->m_sCommonKeyFrames;
+}
+
+inline set<MapPoint *> Map::GetCommonMapPoints(){
+	return this->m_sFusedMapPoints;
+}
+
+
+inline set<KeyFrame *> Map::GetKeyFramesSet(){
+	return this->m_sKeyFrames;
+}
+
+inline set<MapPoint *> Map::GetMapPointsSet(){
+	return this->m_sMapPoints;
+}
 
 
 

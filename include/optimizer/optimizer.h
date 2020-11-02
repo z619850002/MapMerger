@@ -22,13 +22,29 @@ class SingleMapOptimizer
 {
 public:
 	SingleMapOptimizer(Map * pMap);
+
+	void SetMap(Map * pNewMap);
+	Map * GetMap();
 	
 	void Optimize(int nIterations = 100);
+
+	void OptimizeCommonRegion(int nIterations = 100);
+
+	void OptimizeCascade(int nIterations = 100);
 
 private: 
 	Map * m_pMap;
 	
 };
+
+
+inline void SingleMapOptimizer::SetMap(Map * pNewMap){
+	this->m_pMap = pNewMap;
+}
+
+inline Map * SingleMapOptimizer::GetMap(){
+	return this->m_pMap;
+}
 
 
 

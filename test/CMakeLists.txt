@@ -17,3 +17,7 @@ TARGET_LINK_LIBRARIES( map_simulator_test myslam ${THIRD_PARTY_LIBS})
 ADD_EXECUTABLE(optimizer_test optimizer_test.cpp)
 TARGET_LINK_LIBRARIES( optimizer_test myslam ${THIRD_PARTY_LIBS})
 
+
+ADD_EXECUTABLE(merger_test merger_test.cpp)
+TARGET_LINK_LIBRARIES( merger_test myslam ${THIRD_PARTY_LIBS})
+

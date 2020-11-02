@@ -74,6 +74,8 @@ public:
 
 	map<MapPoint *, cv::Point2d> GetAllObservations();
 
+	//Replace the old mappoint observed in this keyframe to the new mappoint
+	void ReplaceMapPoint(MapPoint * pOldMapPoint, MapPoint  * pNewMapPoint);
 
 private:
 	unsigned int m_nId;

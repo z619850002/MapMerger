@@ -1,5 +1,6 @@
 #include "../../include/merger/map_merger.h"
-
+#include "../../include/optimizer/optimizer.h"
+#include "../../include/optimizer/sim3_solver.h"
 using namespace std;
 
 //Default Constructor.
@@ -10,14 +11,24 @@ MapMerger::MapMerger(){
 Map * MapMerger::MergeMap(Map * pMap1, Map * pMap2){
 	//Firstly find matched mappoints between 2 maps;
 	
+	//Optimize 2 maps separately.
 
+
+    //Match 2 maps
 	vector<MapPoint *> gMatchedPoints1, gMatchedPoints2;
 	this->MatchMap(pMap1, pMap2, gMatchedPoints1, gMatchedPoints2);	
 
 
 	//Find a sim3 transformation firstly
 
-	//Then conduct the bundle adjustment approach.
+	Sim3Solver * pSim3Solver = new Sim3Solver(gMatchedPoints1, gMatchedPoints2, true);
+	pSim3Solver->ComputeSim3();
+	Eigen::MatrixXd mSimPose = pSim3Solver->GetEigenSim3Matrix();
+	pMap2->Transform(mSimPose);
+
+	//Merge 2 maps together.
+	pMap1->MergeMap(pMap2);
+	return pMap1;
 
 }
 

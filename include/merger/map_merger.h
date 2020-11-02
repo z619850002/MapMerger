@@ -8,6 +8,9 @@
 using namespace std;
 
 
+class Map;
+class KeyFrame;
+class MapPoint;
 
 class MapMerger
 {

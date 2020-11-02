@@ -26,7 +26,7 @@
 #include <unordered_map>
 #include <map>
 #include <iterator>
-
+#include<algorithm>
 
 #include<pangolin/pangolin.h>
 
@@ -61,6 +61,9 @@ public:
 	    this->m_gMaps.push_back(pMap);
 	}
 
+	void SetError(map<int, double> dKeyFrameErrors){
+		this->m_dKeyFrameErrors = dKeyFrameErrors;
+	}
 
 public:
     
@@ -138,6 +141,25 @@ public:
     	// 	cout << "Twc is " << endl << Twc << endl;
     	// 	cout << endl << endl ;
     	// }
+
+	    double nAverageError = 0.0;
+	    // vector<double> gErrors;
+	    // gErrors.reserve(this->m_dKeyFrameErrors.size());
+	    // for (auto iPair : this->m_dKeyFrameErrors){
+	    // 	gErrors.push_back(iPair.second);
+	    // }
+
+	    // sort(gErrors.begin(), gErrors.end());
+	    // nAverageError = gErrors[gErrors.size() - 6];
+
+	    for (auto iPair : this->m_dKeyFrameErrors){
+	    	nAverageError += iPair.second;
+	    }
+	    nAverageError /= this->m_dKeyFrameErrors.size();
+
+
+
+
 	    for (Map * pMap : this->m_gMaps){
 	    	vector<KeyFrame *> gKeyFrames = pMap->GetKeyFrames();	
 
@@ -146,6 +168,11 @@ public:
 	        {
 
 	            KeyFrame * pKeyFrame = gKeyFrames[i];
+
+	            double nKeyFrameError = 0.0;
+	            if (this->m_dKeyFrameErrors.count(pKeyFrame->GetId())){
+	            	nKeyFrameError = this->m_dKeyFrameErrors[pKeyFrame->GetId()];
+	            }
 
 	            Eigen::MatrixXd mTwc = pKeyFrame->GetPose().inverse();
 
@@ -164,7 +191,13 @@ public:
 
 
 	            glLineWidth(mKeyFrameLineWidth);
-	            glColor3f(((float)(i%3))/2,0.0f,1.0f);
+	            if (nKeyFrameError > nAverageError){
+	            	glColor3f(1.0f,0.0f,1.0f);
+	            }else{
+	            	glColor3f(0.5f,0.0f,1.0f);
+	            }
+	            
+
 	            glBegin(GL_LINES);
 	            glVertex3f(0,0,0);
 	            glVertex3f(w,h,z);
@@ -253,7 +286,8 @@ public:
 
     float m_nViewpointX, m_nViewpointY, m_nViewpointZ, m_nViewpointF;
 
-    
+    //key is the id of keyframes, value is the error.
+    map<int, double> m_dKeyFrameErrors;
 
 
     //Drawer setttings.

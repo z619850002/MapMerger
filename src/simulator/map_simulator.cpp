@@ -79,7 +79,7 @@ vector<RealPoint *> MapSimulator::SimulateRealPoints(int nNumber){
 vector<Sophus::SE3> MapSimulator::SimulateTrajectory(Sophus::SE3 iStartPose, Sophus::SE3 iEndPose, int nNumber){
 	//Random number generator
 	cv::RNG iRNG(12345);
-	double nSigma = 0.000001;
+	double nSigma = 0.0000000000001;
 
 	vector<Sophus::SE3> gPoses;
 	gPoses.reserve(nNumber+2);
@@ -120,7 +120,7 @@ vector<Sophus::SE3> MapSimulator::SimulateTrajectory(Sophus::SE3 iStartPose, Sop
 void initializePose(Sophus::SE3& T_FG,Sophus::SE3& T_LG,
 					Sophus::SE3& T_BG,Sophus::SE3& T_RG)
 {
-	double nScale = 2;
+	double nScale = 1;
 
 
 	// Initialize T_FG
@@ -184,12 +184,12 @@ void MapSimulator::SimulateScene(){
 
 	vector<Sophus::SE3> gPoses;
 
-	gPoses = this->SimulateTrajectory(mTF, mTL, 5);
+	gPoses = this->SimulateTrajectory(mTF, mTL, 8);
 
 	vector<Sophus::SE3> gPoses2, gPoses3, gPoses4;
-	gPoses2 = this->SimulateTrajectory(mTL, mTB, 5);
-	gPoses3 = this->SimulateTrajectory(mTB, mTR, 5);
-	gPoses4 = this->SimulateTrajectory(mTR, mTF, 5);
+	gPoses2 = this->SimulateTrajectory(mTL, mTB, 8);
+	gPoses3 = this->SimulateTrajectory(mTB, mTR, 8);
+	gPoses4 = this->SimulateTrajectory(mTR, mTF, 8);
 	gPoses.insert(gPoses.end(), gPoses2.begin(), gPoses2.end());
 	gPoses.insert(gPoses.end(), gPoses3.begin(), gPoses3.end());
 	gPoses.insert(gPoses.end(), gPoses4.begin(), gPoses4.end());
@@ -255,7 +255,7 @@ void MapSimulator::SimulateScene(){
 	double nMaxDepth = pCamera->GetMaxDepth();
 
 	for (KeyFrame * pKeyFrame : gAllKeyFrames){
-		vector<cv::Point3d> gPoints = pKeyFrame->SamplePoint(1280, 720, 0.1, nMaxDepth+2, 10);
+		vector<cv::Point3d> gPoints = pKeyFrame->SamplePoint(1280, 720, 0.1, nMaxDepth+2, 30);
 		for (cv::Point3d iPoint : gPoints){
 			RealPoint * pNewRealPoint = new RealPoint(iPoint);
 			// gAllRealPoints->AddRealPoints(pNewRealPoint);
@@ -309,5 +309,20 @@ void MapSimulator::SimulateScene(){
 
 	pFirstMap->UpdateCovisibleGraph();
 	pSecondMap->UpdateCovisibleGraph();
+
+}
+
+
+
+
+vector<Sophus::SE3> MapSimulator::GetGroundTruth(vector<KeyFrame *> gKeyFrames){
+	vector<Sophus::SE3> gGroundTruth;
+	gGroundTruth.reserve(gKeyFrames.size());
+
+	for (KeyFrame * pKeyFrame : gKeyFrames){
+		gGroundTruth.push_back(this->m_dKeyFramePoseGroundTruth[pKeyFrame->GetId()]);
+	}
+
+	return gGroundTruth;
 
 }

@@ -5,7 +5,7 @@ using namespace std;
 
 Camera::Camera(){
 	this->m_nObservationCovariance = 1.5;	
-	this->m_nFov = 150;
+	this->m_nFov = 100;
 }
 
 
@@ -13,8 +13,8 @@ Camera::Camera(cv::Mat mK)
 	: m_mK(mK)
 {
 	this->m_nObservationCovariance = 1.5;	
-	this->m_nFov = 150;
-	this->m_nMaxDepth = 2;
+	this->m_nFov = 100;
+	this->m_nMaxDepth = 3;
 }
 
 

@@ -17,6 +17,7 @@ KeyFrame::KeyFrame(){
 
 KeyFrame::KeyFrame(Camera * pCamera){
 	this->m_pCamera = pCamera;
+	this->m_nId = KeyFrame::m_nCountID++;
 }
 
 int KeyFrame::CheckCovisibility(KeyFrame * pKeyFrame){
@@ -108,3 +109,15 @@ bool KeyFrame::CanObserve(cv::Point3d iPointWorld){
 }
 
 
+
+void KeyFrame::ReplaceMapPoint(MapPoint * pOldMapPoint, MapPoint  * pNewMapPoint){
+	if (this->m_dMapPointsAndObservations.count(pOldMapPoint) == 0){
+		return;
+	}
+	cv::Point2d iOldObservation = this->m_dMapPointsAndObservations[pOldMapPoint];	
+	if (this->m_dMapPointsAndObservations.erase(pOldMapPoint)){
+		this->m_dMapPointsAndObservations[pNewMapPoint] = iOldObservation;
+		return;
+	}
+	cout << "Something wrong!" << endl;
+}
