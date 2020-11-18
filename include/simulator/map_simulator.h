@@ -57,7 +57,7 @@ public:
 
 	void SimulateScene();
 
-	vector<Sophus::SE3> GetGroundTruth(vector<KeyFrame *> gKeyFrames);
+	map<int, Sophus::SE3> GetGroundTruth();
 
 	
 	vector<MapPoint *> SimulateMapPoints(MapPointsRange iMapPointRange);

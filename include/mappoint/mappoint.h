@@ -53,6 +53,8 @@ public:
 
 	RealPoint * GetRealPoint();
 
+	vector<KeyFrame *> GetObservedKeyFrames();
+
 private:
 	unsigned int m_nId;
 
@@ -112,6 +114,17 @@ inline RealPoint * MapPoint::GetRealPoint(){
 	return this->m_pRealPoint;
 }
 
+
+inline vector<KeyFrame *> MapPoint::GetObservedKeyFrames(){
+	vector<KeyFrame *> gObservedKeyFrames;
+	gObservedKeyFrames.reserve(this->m_dKeyFramesAndObservations.size());
+
+	for (auto iPair : m_dKeyFramesAndObservations){
+		gObservedKeyFrames.push_back(iPair.first);
+	}
+
+	return gObservedKeyFrames;
+}
 
 
 #endif

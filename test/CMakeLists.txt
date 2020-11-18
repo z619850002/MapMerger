@@ -21,3 +21,6 @@ TARGET_LINK_LIBRARIES( optimizer_test myslam ${THIRD_PARTY_LIBS})
 ADD_EXECUTABLE(merger_test merger_test.cpp)
 TARGET_LINK_LIBRARIES( merger_test myslam ${THIRD_PARTY_LIBS})
 
+ADD_EXECUTABLE(pose_graph_test pose_graph_test.cpp)
+TARGET_LINK_LIBRARIES( pose_graph_test myslam ${THIRD_PARTY_LIBS})
+

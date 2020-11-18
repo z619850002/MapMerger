@@ -20,11 +20,11 @@ int main(){
 
 
 
-	pMap->AddNoise(0.04, 0.04);
-	pMap2->AddNoise(0.04, 0.04);
+	pMap->AddNoise(0.02, 0.02);
+	pMap2->AddNoise(0.03, 0.03);
 
 
-	pMap2->SetScale(1.5);
+	pMap2->SetScale(3);
 	pMap->Localize();
 	pMap2->Localize();
 
@@ -42,18 +42,21 @@ int main(){
 
 	pMerger->MergeMap(pMap, pMap2);
 
-
-
-	vector<Sophus::SE3> gGroundTruth = pSimulator->GetGroundTruth(pMap->GetKeyFrames());
+	map<int, Sophus::SE3> dGroundTruth = pSimulator->GetGroundTruth();
 
 	vector<double> gErrors1, gErrors2;
-	double nError1 = pMap->ComputeATE(gGroundTruth, gErrors1);
+	double nError1 = pMap->ComputeRPE(dGroundTruth, gErrors1);
 
 	
     pOptimizer->SetMap(pMap);
-    pOptimizer->OptimizeCascade(100);	
 
-    double nError2 = pMap->ComputeATE(gGroundTruth, gErrors2);
+    pOptimizer->OptimizeWithPoseGraph(100);  
+										
+    // pOptimizer->OptimizeCascade2(100);	
+    // pOptimizer->Optimize(100);	        
+
+
+    double nError2 = pMap->ComputeRPE(dGroundTruth, gErrors2);
 
 	cout << "Error 1 is: " << nError1 << endl;
 

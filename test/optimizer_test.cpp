@@ -38,7 +38,7 @@ int main(){
 
     SingleMapOptimizer * pOptimizer = new SingleMapOptimizer(pMap2);
 
-    pOptimizer->Optimize(1000);
+    // pOptimizer->Optimize(1000);
 
     pPlotter2->Run("MapMerger2: Map Viewer");
 

@@ -58,8 +58,8 @@ public:
 
 	void MergeMap(Map * pMergedMap);
 
-	double ComputeATE(vector<Sophus::SE3> gGroundTruth, vector<double> & gErrors);
-
+	double ComputeATE(map<int, Sophus::SE3> dGroundTruth, vector<double> & gErrors);
+	double ComputeRPE(map<int, Sophus::SE3> dGroundTruth, vector<double> & gErrors);
 
 	set<KeyFrame *> GetCommonKeyFrames();
 	set<MapPoint *> GetCommonMapPoints();

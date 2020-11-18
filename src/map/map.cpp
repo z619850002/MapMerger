@@ -32,6 +32,16 @@ void Map::UpdateCovisibleGraph(){
 			}
 		}	
 	}
+
+	for (MapPoint * pMapPoint : m_sMapPoints){
+		for (KeyFrame * pKeyFrame : m_sKeyFrames){
+			if (pKeyFrame->HasBeenObserved(pMapPoint)){
+				cv::Point2d iObservation = pKeyFrame->GetObservation(pMapPoint);
+				pMapPoint->AddKeyFrame(pKeyFrame, iObservation);
+			}
+		}
+	}
+
 }
 
 
@@ -148,6 +158,7 @@ void Map::MergeMap(Map * pMergedMap){
 	this->m_sFusedMapPoints.clear();
 	this->m_sCommonKeyFrames.clear();
 
+
 	for (int i=0;i<gMatchedMapPoints1.size();i++){
 		MapPoint * pMapPoint1 = gMatchedMapPoints1[i];
 		MapPoint * pMapPoint2 = gMatchedMapPoints2[i];
@@ -176,6 +187,17 @@ void Map::MergeMap(Map * pMergedMap){
 
 	}
 
+	
+	for (KeyFrame * pKeyFrame : gMergedKeyFrames){
+		if (pKeyFrame->GetPreviousKeyFrame() == nullptr){
+			for (KeyFrame * pCurrentKeyFrame : this->m_gKeyFrames){
+				if (pKeyFrame->CheckCovisibility(pCurrentKeyFrame)){
+					pKeyFrame->SetPreviousKeyFrame(pCurrentKeyFrame);
+				}
+			}
+		}
+	}
+
 
 	//Merge keyframes and mappoints.
 	for (KeyFrame * pKeyFrame : gMergedKeyFrames){
@@ -197,7 +219,7 @@ void Map::MergeMap(Map * pMergedMap){
 
 }
 
-double Map::ComputeATE(vector<Sophus::SE3> gGroundTruth, vector<double> & gErrors){
+double Map::ComputeATE(map<int, Sophus::SE3> dGroundTruth, vector<double> & gErrors){
 	
 	//Find the sim3 transformation.
 	vector<MapPoint *> gCurrentMapPoints = this->GetMapPoints();
@@ -209,7 +231,7 @@ double Map::ComputeATE(vector<Sophus::SE3> gGroundTruth, vector<double> & gError
 		gGroundTruthMapPoints.push_back(new MapPoint(pRealPoint));
 	}
 
-	Sim3Solver * pSolver = new Sim3Solver(gCurrentMapPoints, gGroundTruthMapPoints, true);
+	Sim3Solver * pSolver = new Sim3Solver(gCurrentMapPoints, gGroundTruthMapPoints);
 	pSolver->ComputeSim3();
 	Eigen::MatrixXd mSim3Transform = pSolver->GetEigenSim3Matrix();
 
@@ -217,13 +239,19 @@ double Map::ComputeATE(vector<Sophus::SE3> gGroundTruth, vector<double> & gError
 
 	vector<Eigen::Vector3d> gGroundTruthTrajectory, gCurrentTrajectory;
 	
-
-
-	for (Sophus::SE3 mPose : gGroundTruth){
+	for (KeyFrame * pKeyFrame : this->m_gKeyFrames){
+		Sophus::SE3 mPose = dGroundTruth[pKeyFrame->GetId()];
 		Eigen::Vector3d mTrajectory = mPose.inverse().translation();
 		mTrajectory = mSim3Transform * mTrajectory;
 		gGroundTruthTrajectory.push_back(mTrajectory);
 	}
+
+
+	// for (Sophus::SE3 mPose : gGroundTruth){
+	// 	Eigen::Vector3d mTrajectory = mPose.inverse().translation();
+	// 	mTrajectory = mSim3Transform * mTrajectory;
+	// 	gGroundTruthTrajectory.push_back(mTrajectory);
+	// }
 
 	vector<KeyFrame *> gKeyFrames = this->GetKeyFrames();
 	for (KeyFrame * pKeyFrame : gKeyFrames){
@@ -250,3 +278,52 @@ double Map::ComputeATE(vector<Sophus::SE3> gGroundTruth, vector<double> & gError
 	return nTranslations;
 
 }
+
+double Map::ComputeRPE(map<int, Sophus::SE3> dGroundTruth, vector<double> & gErrors){
+
+	vector<KeyFrame *> gKeyFrames = this->GetKeyFrames();
+	gErrors.reserve(gKeyFrames.size());
+	double nTotalError = 0.0;
+	for (KeyFrame * pKeyFrame : gKeyFrames){
+		KeyFrame * pPreviousKeyFrame = pKeyFrame->GetPreviousKeyFrame();
+		if (pPreviousKeyFrame == nullptr){
+			gErrors.push_back(0.0);
+			continue;
+		}
+		
+		Sophus::SE3 mPreviousPose = dGroundTruth[pPreviousKeyFrame->GetId()];
+		Sophus::SE3 mCurrentPose =  dGroundTruth[pKeyFrame->GetId()];
+
+		Sophus::SE3 mGroundTruthRelativePose = mCurrentPose * mPreviousPose.inverse();
+
+		Eigen::MatrixXd mRealRelativePoseMatrix = pKeyFrame->GetPose() * pPreviousKeyFrame->GetPose().inverse();
+		
+		Eigen::Matrix3d mRotation = mRealRelativePoseMatrix.block(0, 0, 3, 3);
+		Eigen::Vector3d mTranslation = mRealRelativePoseMatrix.block(0, 3, 3, 1);
+
+		Sophus::SE3 mRealRelativePose = Sophus::SE3(mRotation, mTranslation);
+
+		Sophus::SE3 mError = mGroundTruthRelativePose * mRealRelativePose.inverse();
+
+		Eigen::Matrix<double, 6 , 1> mErrorVector = mError.log();
+
+		double nError = 0.0;
+		nError += mErrorVector(0 , 0) * mErrorVector(0 , 0);
+		nError += mErrorVector(1 , 0) * mErrorVector(1 , 0);
+		nError += mErrorVector(2 , 0) * mErrorVector(2 , 0);
+		nError += mErrorVector(3 , 0) * mErrorVector(3 , 0);
+		nError += mErrorVector(4 , 0) * mErrorVector(4 , 0);
+		nError += mErrorVector(5 , 0) * mErrorVector(5 , 0);
+		
+		nError = sqrt(nError);
+		gErrors.push_back(nError);
+		nTotalError += nError;
+	}
+
+	nTotalError /= (double)(gKeyFrames.size());
+
+	return nTotalError;
+
+}
+
+

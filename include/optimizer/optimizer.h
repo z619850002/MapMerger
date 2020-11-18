@@ -31,6 +31,11 @@ public:
 	void OptimizeCommonRegion(int nIterations = 100);
 
 	void OptimizeCascade(int nIterations = 100);
+	void OptimizeCascade2(int nIterations = 100);
+
+
+
+	void OptimizeWithPoseGraph(int nIterations = 100);
 
 private: 
 	Map * m_pMap;

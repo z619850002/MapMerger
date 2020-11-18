@@ -116,7 +116,6 @@ public:
 	        
 			       
             // this->m_pMapDrawer->DrawMapPoints();
-
 	        this->DrawMapPoints();
             this->DrawKeyFrames();
 
@@ -191,7 +190,7 @@ public:
 
 
 	            glLineWidth(mKeyFrameLineWidth);
-	            if (nKeyFrameError > nAverageError){
+	            if (nKeyFrameError < nAverageError){
 	            	glColor3f(1.0f,0.0f,1.0f);
 	            }else{
 	            	glColor3f(0.5f,0.0f,1.0f);
@@ -225,22 +224,36 @@ public:
 	        }
 
 
+
 	        for(int i=0; i< gKeyFrames.size(); i++)
 	        {
 
 	            KeyFrame * pKeyFrame = gKeyFrames[i];
 
-	            for (KeyFrame * pCovisibleKeyFrame : pKeyFrame->GetCovisibleKeyFrames()){
+	            // for (KeyFrame * pCovisibleKeyFrame : pKeyFrame->GetCovisibleKeyFrames()){
 
-		            glLineWidth(mKeyFrameLineWidth);
-		            glColor3f(((float)(i%3))/2,0.0f,1.0f);
+		           //  glLineWidth(mKeyFrameLineWidth);
+		           //  glColor3f(0.0f,0.0f,1.0f);
+		           //  glBegin(GL_LINES);
+		           //  Eigen::Vector3d iStartPosition = pKeyFrame->GetPose().inverse().block(0 , 3 , 3 , 1);
+
+		           //  Eigen::Vector3d iEndPosition = pCovisibleKeyFrame->GetPose().inverse().block(0 , 3 , 3 , 1);
+		           //  glVertex3f(iStartPosition[0],iStartPosition[1],iStartPosition[2]);
+		           //  glVertex3f(iEndPosition[0],iEndPosition[1],iEndPosition[2]);
+		           //  glEnd();	
+	            // }
+
+	            KeyFrame * pPreviousKeyFrame = pKeyFrame->GetPreviousKeyFrame();
+	            if (pPreviousKeyFrame != nullptr){
+	            	glLineWidth(mKeyFrameLineWidth);
+		            glColor3f(1.0f,0.0f,1.0f);
 		            glBegin(GL_LINES);
 		            Eigen::Vector3d iStartPosition = pKeyFrame->GetPose().inverse().block(0 , 3 , 3 , 1);
 
-		            Eigen::Vector3d iEndPosition = pCovisibleKeyFrame->GetPose().inverse().block(0 , 3 , 3 , 1);
+		            Eigen::Vector3d iEndPosition = pPreviousKeyFrame->GetPose().inverse().block(0 , 3 , 3 , 1);
 		            glVertex3f(iStartPosition[0],iStartPosition[1],iStartPosition[2]);
 		            glVertex3f(iEndPosition[0],iEndPosition[1],iEndPosition[2]);
-		            glEnd();	
+		            glEnd();		
 	            }
 				
 

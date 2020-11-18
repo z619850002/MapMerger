@@ -227,11 +227,16 @@ void MapSimulator::SimulateScene(){
 	Map * pFirstMap = new Map();
 	Map * pSecondMap = new Map();
 
-
+	KeyFrame * pPreviousKeyFrame = nullptr;
 	
 	for (int i=0;i<gPoses.size();i++){
 		Sophus::SE3 iPose = gPoses[i];
 		KeyFrame * pKeyFrame = new KeyFrame(pCamera);
+		
+		
+		pKeyFrame->SetPreviousKeyFrame(pPreviousKeyFrame);
+		pPreviousKeyFrame = pKeyFrame;
+
 		pKeyFrame->SetPose(iPose.matrix());
 		gAllKeyFrames.push_back(pKeyFrame);
 		m_dKeyFramePoseGroundTruth[pKeyFrame->GetId()] = iPose;
@@ -240,9 +245,16 @@ void MapSimulator::SimulateScene(){
 	}
 
 
+	pPreviousKeyFrame = nullptr;
+
 	for (int i=0;i<gSecondPoses.size();i++){
 		Sophus::SE3 iPose = gSecondPoses[i];
 		KeyFrame * pKeyFrame = new KeyFrame(pCamera);
+
+
+		pKeyFrame->SetPreviousKeyFrame(pPreviousKeyFrame);
+		pPreviousKeyFrame = pKeyFrame;
+
 		pKeyFrame->SetPose(iPose.matrix());
 		gAllKeyFrames.push_back(pKeyFrame);
 		m_dKeyFramePoseGroundTruth[pKeyFrame->GetId()] = iPose;
@@ -315,14 +327,6 @@ void MapSimulator::SimulateScene(){
 
 
 
-vector<Sophus::SE3> MapSimulator::GetGroundTruth(vector<KeyFrame *> gKeyFrames){
-	vector<Sophus::SE3> gGroundTruth;
-	gGroundTruth.reserve(gKeyFrames.size());
-
-	for (KeyFrame * pKeyFrame : gKeyFrames){
-		gGroundTruth.push_back(this->m_dKeyFramePoseGroundTruth[pKeyFrame->GetId()]);
-	}
-
-	return gGroundTruth;
-
+map<int, Sophus::SE3> MapSimulator::GetGroundTruth(){
+	return this->m_dKeyFramePoseGroundTruth;
 }

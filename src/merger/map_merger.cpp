@@ -21,7 +21,7 @@ Map * MapMerger::MergeMap(Map * pMap1, Map * pMap2){
 
 	//Find a sim3 transformation firstly
 
-	Sim3Solver * pSim3Solver = new Sim3Solver(gMatchedPoints1, gMatchedPoints2, true);
+	Sim3Solver * pSim3Solver = new Sim3Solver(gMatchedPoints1, gMatchedPoints2);
 	pSim3Solver->ComputeSim3();
 	Eigen::MatrixXd mSimPose = pSim3Solver->GetEigenSim3Matrix();
 	pMap2->Transform(mSimPose);
