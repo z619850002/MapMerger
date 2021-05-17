@@ -24,3 +24,15 @@ TARGET_LINK_LIBRARIES( merger_test myslam ${THIRD_PARTY_LIBS})
 ADD_EXECUTABLE(pose_graph_test pose_graph_test.cpp)
 TARGET_LINK_LIBRARIES( pose_graph_test myslam ${THIRD_PARTY_LIBS})
 
+
+ADD_EXECUTABLE(marginalize_test marginalize_test.cpp)
+TARGET_LINK_LIBRARIES( marginalize_test myslam ${THIRD_PARTY_LIBS})
+
+
+ADD_EXECUTABLE(refined_pose_graph_test refined_pose_graph_test.cpp)
+TARGET_LINK_LIBRARIES( refined_pose_graph_test myslam ${THIRD_PARTY_LIBS})
+
+
+ADD_EXECUTABLE(yaw_pose_graph_test yaw_pose_graph_test.cpp)
+TARGET_LINK_LIBRARIES( yaw_pose_graph_test myslam ${THIRD_PARTY_LIBS})
+

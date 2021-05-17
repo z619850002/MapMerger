@@ -759,10 +759,6 @@ void SingleMapOptimizer::OptimizeWithPoseGraph(int nIterations){
                 mRotation,
                 mTranslation));
 
-        // if (bFirstKeyFrame){
-        //     pPoseVertex->setFixed(true);
-        //     bFirstKeyFrame = false;
-        // }
 
         iOptimizer.addVertex(pPoseVertex);
     }
@@ -777,30 +773,30 @@ void SingleMapOptimizer::OptimizeWithPoseGraph(int nIterations){
         pPointVertex->setEstimate(Eigen::Vector3d(iPoint3D.x,
                                             iPoint3D.y,
                                             iPoint3D.z));
-        pPointVertex->setMarginalized(true);
-        pPointVertex->setFixed(true);
+        // pPointVertex->setMarginalized(true);
+        // pPointVertex->setFixed(true);
         iOptimizer.addVertex(pPointVertex);
     }
 
     //Add reprojection error edges.
     
-    // for (MapPoint * pMapPoint : sCommonMapPoints){
-    //     cout << "Observed keyframe size: " << pMapPoint->GetObservedKeyFrames().size() << endl;
-    //     for (KeyFrame * pKeyFrame : pMapPoint->GetObservedKeyFrames()){
-    //         nVertexIndex++;
-    //         cv::Point2d iObservation = pKeyFrame->GetObservation(pMapPoint);    
-    //         g2o::EdgeProjectXYZ2UV * pEdge = new g2o::EdgeProjectXYZ2UV();
-    //         pEdge->setId( nVertexIndex );
-    //         //Linked with the position of 3d points.
-    //         pEdge->setVertex(0 , dMapPointsAndVertices[pMapPoint]);
-    //         pEdge->setVertex(1 , dKeyFramesAndVertices[pKeyFrame]);
-    //         //Set measurement and camera parameters.
-    //         pEdge->setMeasurement(Eigen::Vector2d(iObservation.x, iObservation.y));
-    //         pEdge->setParameterId(0 , nCameraParameterId);
-    //         pEdge->setInformation(Eigen::Matrix2d::Identity());
-    //         iOptimizer.addEdge(pEdge);
-    //     }        
-    // }
+    for (MapPoint * pMapPoint : sCommonMapPoints){
+        cout << "Observed keyframe size: " << pMapPoint->GetObservedKeyFrames().size() << endl;
+        for (KeyFrame * pKeyFrame : pMapPoint->GetObservedKeyFrames()){
+            nVertexIndex++;
+            cv::Point2d iObservation = pKeyFrame->GetObservation(pMapPoint);    
+            g2o::EdgeProjectXYZ2UV * pEdge = new g2o::EdgeProjectXYZ2UV();
+            pEdge->setId( nVertexIndex );
+            //Linked with the position of 3d points.
+            pEdge->setVertex(0 , dMapPointsAndVertices[pMapPoint]);
+            pEdge->setVertex(1 , dKeyFramesAndVertices[pKeyFrame]);
+            //Set measurement and camera parameters.
+            pEdge->setMeasurement(Eigen::Vector2d(iObservation.x, iObservation.y));
+            pEdge->setParameterId(0 , nCameraParameterId);
+            pEdge->setInformation(Eigen::Matrix2d::Identity());
+            iOptimizer.addEdge(pEdge);
+        }        
+    }
 
     //Add pose graph edges.
 
@@ -862,7 +858,7 @@ void SingleMapOptimizer::OptimizeWithPoseGraph(int nIterations){
 
     //Initialize optimization
     iOptimizer.initializeOptimization();
-    iOptimizer.optimize(1);
+    iOptimizer.optimize(100);
 
     //Load results;
 

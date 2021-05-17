@@ -24,7 +24,7 @@ int main(){
 	pMap2->AddNoise(0.03, 0.03);
 
 
-	pMap2->SetScale(3);
+	pMap2->SetScale(3.5);
 	pMap->Localize();
 	pMap2->Localize();
 
@@ -50,10 +50,10 @@ int main(){
 	
     pOptimizer->SetMap(pMap);
 
-    pOptimizer->OptimizeWithPoseGraph(100);  
+    // pOptimizer->OptimizeWithPoseGraph(100);  
 										
     // pOptimizer->OptimizeCascade2(100);	
-    // pOptimizer->Optimize(100);	        
+    pOptimizer->Optimize(100);	        
 
 
     double nError2 = pMap->ComputeRPE(dGroundTruth, gErrors2);
